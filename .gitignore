@@ -1,69 +1,64 @@
-# Prerequisites
-*.d
+#ifndef RESOURCEMANAGER_H
+#define RESOURCEMANAGER_H
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+#include <iostream>
+#include <string>
 
-# Precompiled Headers
-*.gch
-*.pch
+class SpaceResource {
+private:
+    std::string resourceName;
+    double quantity;  // Amount in Metric Tons (MT)
+    double purity;    // Percentage (0.0 to 1.0)
 
-# Linker files
-*.ilk
+public:
+    // --- Function Overloading ---
 
-# Debugger Files
-*.pdb
+    // 1. Default Initialization (Empty Resource)
+    SpaceResource() {
+        resourceName = "Unknown Mineral";
+        quantity = 0.0;
+        purity = 0.0;
+    }
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-*.so.*
+    // 2. Parameterized Initialization (Specific Resource)
+    SpaceResource(std::string name, double qty, double pur) {
+        resourceName = name;
+        quantity = qty;
+        purity = pur;
+    }
 
+    // 3. Alternate Input (Initialize from existing with a purity adjustment)
+    SpaceResource(const SpaceResource& other, double purityAdjustment) {
+        resourceName = other.resourceName + " (Processed)";
+        quantity = other.quantity;
+        purity = other.purity * purityAdjustment;
+    }
 
-# Fortran module files
-*.mod
-*.smod
+    // --- Operator Overloading ---
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+    // 1. Arithmetic Operator (+): Merge two resource stockpiles
+    SpaceResource operator+(const SpaceResource& other) const {
+        // Returns a new resource representing the combined weight
+        return SpaceResource(this->resourceName, this->quantity + other.quantity, this->purity);
+    }
 
-# Executables
-*.exe
-*.out
-*.app
+    // 2. Arithmetic Operator (*): Calculate effective yield (Quantity * Purity)
+    // Overloading multiplication to scale quantity
+    double operator*(double multiplier) const {
+        return this->quantity * multiplier;
+    }
 
-# Build directories
-build/
-Build/
-build-*/
+    // 3. Comparison Operator (<): Check if one resource batch is smaller than another
+    bool operator<(const SpaceResource& other) const {
+        return (this->quantity < other.quantity);
+    }
 
-# CMake generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-install_manifest.txt
-compile_commands.json
+    // 4. Output Operator (<<): Friend function for mission logs
+    friend std::ostream& operator<<(std::ostream& os, const SpaceResource& res) {
+        os << "Resource: " << res.resourceName << " | Qty: " << res.quantity 
+           << " MT | Purity: " << (res.purity * 100) << "%";
+        return os;
+    }
+};
 
-# Temporary files
-*.tmp
-*.log
-*.bak
-*.swp
-
-# vcpkg
-vcpkg_installed/
-
-# debug information files
-*.dwo
-
-# test output & cache
-Testing/
-.cache/
+#endif
